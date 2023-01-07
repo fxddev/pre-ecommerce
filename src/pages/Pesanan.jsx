@@ -139,20 +139,26 @@ function Pesanan() {
                                     <p>{p.midtrans_response.transaction_time}</p>
                                 </div>
                                 <div>
-                                    {p.is_proses == false && p.no_resi == "" && p.is_selesai == false &&
-                                        <p>Menunggu Konfirmasi</p>
-                                    }
+                                    {p.midtrans_response.transaction_status == "pending" ?
+                                        <p>Menunggu Pembayaran</p>
+                                        :
+                                        <>
+                                            {p.is_proses == false && p.no_resi == "" && p.is_selesai == false &&
+                                                <p>Menunggu Konfirmasi</p>
+                                            }
 
-                                    {p.is_proses == true && p.no_resi == "" && p.is_selesai == false &&
-                                        <p>Diproses</p>
-                                    }
+                                            {p.is_proses == true && p.no_resi == "" && p.is_selesai == false &&
+                                                <p>Diproses</p>
+                                            }
 
-                                    {p.is_proses == true && p.no_resi != "" && p.is_selesai == false &&
-                                        <p>Dikirim</p>
-                                    }
+                                            {p.is_proses == true && p.no_resi != "" && p.is_selesai == false &&
+                                                <p>Dikirim</p>
+                                            }
 
-                                    {p.is_proses == true && p.no_resi != "" && p.is_selesai == true &&
-                                        <p>Selesai</p>
+                                            {p.is_proses == true && p.no_resi != "" && p.is_selesai == true &&
+                                                <p>Selesai</p>
+                                            }
+                                        </>
                                     }
 
                                     <button onClick={() => batalkanPesanan(p.id)}>Batalin</button>
@@ -168,7 +174,7 @@ function Pesanan() {
                                     <p>{p.midtrans_response.gross_amount}</p>
 
                                     {/* https://codeshack.io/pure-css3-modal-example/ */}
-                                    <input type="checkbox" id={p.id} />
+                                    <input type="checkbox" className='check__box' id={p.id} />
                                     <label for={p.id} className="example-label">Detail</label>
                                     <label for={p.id} className="modal-background"></label>
                                     <div className="modal">

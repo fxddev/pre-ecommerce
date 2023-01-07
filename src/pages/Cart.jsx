@@ -110,6 +110,27 @@ function Cart() {
 
     }
 
+    async function handleCheckbox(id_cart) {
+        console.log(id_cart);
+
+        const record = await pb.collection('keranjang').getOne(id_cart, {
+            expand: 'relField1,relField2.subRelField',
+        });
+        console.log(record);
+
+        const current_is_selected = record.is_selected
+
+        const data = {
+            "is_selected": !current_is_selected
+        };
+
+        const record_up = await pb.collection('keranjang').update(id_cart, data);
+        console.log("record_up");
+        console.log(record_up);
+        
+        window.location.reload(false);
+    }
+
     async function handleJumlah(e, idCart) {
         const jumlah_new = e.target.value
         console.log(jumlah_new);
@@ -135,40 +156,13 @@ function Cart() {
                     "jumlah": jumlah_new,
                     "is_selected": cartDetails[i].is_selected
                 };
-                
+
                 const record = await pb.collection('keranjang').update(idCart, data);
             } else {
                 array.push(cartDetails[i])
             }
         }
         setCartDetails(array)
-    }
-
-    async function handleCheckbox(id_cart) {
-        console.log(id_cart);
-
-        const record = await pb.collection('keranjang').getOne(id_cart, {
-            expand: 'relField1,relField2.subRelField',
-        });
-        console.log(record);
-
-        const current_is_selected = record.is_selected
-
-        const data = {
-            "is_selected": !current_is_selected
-        };
-
-        const record_up = await pb.collection('keranjang').update(id_cart, data);
-        console.log("record_up");
-        console.log(record_up);
-
-        const funcAsyncTrigger = async () => {
-            await getCartById()
-            await getCartDetails()
-        }
-
-        // call the function
-        funcAsyncTrigger()
     }
 
     return (
