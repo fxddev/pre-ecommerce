@@ -47,10 +47,60 @@ function Pesanan() {
         for (let i = 0; i < records.length; i++) {
             if (records[i].id_pembeli == id_user) {
                 // console.log(records[i]);
-                array.push(records[i])
+
+                console.log(records[i].midtrans_response.transaction_id);
+
+                var data = JSON.stringify({ "transaction_id": records[i].midtrans_response.transaction_id });
+
+                var config = {
+                    method: 'post',
+                    url: `${midtrans_api}/midtrans/status`,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: data
+                };
+
+                try {
+                    const resp = await axios(config);
+                    const data = await resp.data;
+                    // console.log(data);
+                    const midtrans_response_newest = data.data;
+                    console.log("midtrans_response_newest");
+                    console.log(midtrans_response_newest);
+
+                    const obj = {
+                        "id": records[i].id,
+                        "id_pembeli": records[i].id_pembeli,
+                        "product_details": records[i].product_details,
+                        "kurir": records[i].kurir,
+                        "alamat_tujuan": records[i].alamat_tujuan,
+                        "midtrans_response": records[i].midtrans_response,
+                        "is_proses": records[i].is_proses,
+                        "no_resi": records[i].no_resi,
+                        "is_selesai": records[i].is_selesai,
+                        "midtrans_response_newest": midtrans_response_newest
+                    }
+
+                    if (midtrans_response_newest.transaction_status == 'expire') {
+                        console.log(`id ${records[i].id} transaksinya expire`);
+                        await pb.collection('pesanan').delete(records[i].id);
+                    } else {
+                        array.push(obj)
+                    }
+
+
+
+                } catch (error) {
+                    console.error(`Axios error..: ${error}`)
+                }
+
             }
         }
         setPesananById(array)
+
+        console.log('hasil akhir getAllPesananById');
+        console.log(array);
     }
 
     async function batalkanPesanan(id) {
@@ -133,97 +183,104 @@ function Pesanan() {
                 <>
                     {pesananById.map((p, index) => {
                         return <div key={index}>
-                            <div>
+
+                            {p.midtrans_response_newest.transaction_status == "expire" ?
+                                <p></p>
+                                :
                                 <div>
-                                    <h3>Belanja</h3>
-                                    <p>{p.midtrans_response.transaction_time}</p>
-                                </div>
-                                <div>
-                                    {p.midtrans_response.transaction_status == "pending" ?
-                                        <p>Menunggu Pembayaran</p>
-                                        :
-                                        <>
-                                            {p.is_proses == false && p.no_resi == "" && p.is_selesai == false &&
-                                                <p>Menunggu Konfirmasi</p>
-                                            }
+                                    <div>
+                                        <h3>Belanja</h3>
+                                        <p>{p.midtrans_response.transaction_time}</p>
+                                    </div>
+                                    <div>
+                                        {p.midtrans_response_newest.transaction_status == "pending" ?
+                                            <p>Menunggu Pembayaran</p>
+                                            :
+                                            <>
+                                                {p.is_proses == false && p.no_resi == "" && p.is_selesai == false &&
+                                                    <p>Menunggu Konfirmasi</p>
+                                                }
 
-                                            {p.is_proses == true && p.no_resi == "" && p.is_selesai == false &&
-                                                <p>Diproses</p>
-                                            }
+                                                {p.is_proses == true && p.no_resi == "" && p.is_selesai == false &&
+                                                    <p>Diproses</p>
+                                                }
 
-                                            {p.is_proses == true && p.no_resi != "" && p.is_selesai == false &&
-                                                <p>Dikirim</p>
-                                            }
+                                                {p.is_proses == true && p.no_resi != "" && p.is_selesai == false &&
+                                                    <p>Dikirim</p>
+                                                }
 
-                                            {p.is_proses == true && p.no_resi != "" && p.is_selesai == true &&
-                                                <p>Selesai</p>
-                                            }
-                                        </>
-                                    }
+                                                {p.is_proses == true && p.no_resi != "" && p.is_selesai == true &&
+                                                    <p>Selesai</p>
+                                                }
+                                            </>
+                                        }
 
-                                    <button onClick={() => batalkanPesanan(p.id)}>Batalin</button>
-                                </div>
 
-                                <div>
-                                    <h3>{p.product_details.nama}</h3>
-                                    <p>{p.product_details.jumlah} barang</p>
-                                </div>
+                                        <button onClick={() => batalkanPesanan(p.id)}>Batalin</button>
+                                    </div>
 
-                                <div>
-                                    <h3>Total belanja</h3>
-                                    <p>{p.midtrans_response.gross_amount}</p>
+                                    <div>
+                                        <h3>{p.product_details.nama}</h3>
+                                        <p>{p.product_details.jumlah} barang</p>
+                                    </div>
 
-                                    {/* https://codeshack.io/pure-css3-modal-example/ */}
-                                    <input type="checkbox" className='check__box' id={p.id} />
-                                    <label for={p.id} className="example-label">Detail</label>
-                                    <label for={p.id} className="modal-background"></label>
-                                    <div className="modal">
-                                        <div className="modal-header">
-                                            <h3>Modal Title</h3>
-                                            <label for={p.id}>
-                                                x
-                                            </label>
-                                        </div>
-                                        <div>
-                                            <div>
-                                                <p>{p.midtrans_response.order_id}</p>
-                                                <p>Tanggal pembelian {p.midtrans_response.transaction_time}</p>
+                                    <div>
+                                        <h3>Total belanja</h3>
+                                        <p>{p.midtrans_response.gross_amount}</p>
+
+                                        {/* https://codeshack.io/pure-css3-modal-example/ */}
+                                        <input type="checkbox" className='check__box' id={p.id} />
+                                        <label for={p.id} className="example-label">Detail</label>
+                                        <label for={p.id} className="modal-background"></label>
+                                        <div className="modal">
+                                            <div className="modal-header">
+                                                <h3>Modal Title</h3>
+                                                <label for={p.id}>
+                                                    x
+                                                </label>
                                             </div>
                                             <div>
-                                                <h3>Detail produk</h3>
+                                                <div>
+                                                    <p>{p.midtrans_response.order_id}</p>
+                                                    <p>Tanggal pembelian {p.midtrans_response.transaction_time}</p>
+                                                </div>
+                                                <div>
+                                                    <h3>Detail produk</h3>
 
-                                                {p.product_details.map((pd, index) => {
-                                                    return <div key={index}>
-                                                        <h3>{pd.nama}</h3>
-                                                        <p>{pd.jumlah} x {pd.harga}</p>
-                                                    </div>
-                                                })}
-                                            </div>
-                                            <div>
-                                                <h3>Info pengiriman</h3>
-                                                <p>Kurir : {p.kurir.name}</p>
-                                                <p>NoResi : {p.no_resi}</p>
+                                                    {p.product_details.map((pd, index) => {
+                                                        return <div key={index}>
+                                                            <h3>{pd.nama}</h3>
+                                                            <p>{pd.jumlah} x {pd.harga}</p>
+                                                        </div>
+                                                    })}
+                                                </div>
+                                                <div>
+                                                    <h3>Info pengiriman</h3>
+                                                    <p>Kurir : {p.kurir.name}</p>
+                                                    <p>NoResi : {p.no_resi}</p>
 
-                                                {p.alamat_tujuan.map((pat, index) => {
-                                                    return <p>Alamat : {pat.nama} {pat.alamat.nomor_hp} {pat.alamat.alamat}</p>
-                                                })}
+                                                    {p.alamat_tujuan.map((pat, index) => {
+                                                        return <p>Alamat : {pat.nama} {pat.alamat.nomor_hp} {pat.alamat.alamat}</p>
+                                                    })}
 
-                                            </div>
-                                            <div>
-                                                <h3>Rincian pembayaran</h3>
+                                                </div>
+                                                <div>
+                                                    <h3>Rincian pembayaran</h3>
 
-                                                {p.product_details.map((pd, index) => {
-                                                    return <p>Total harga ({pd.jumlah} barang) : {pd.harga * pd.jumlah}</p>
-                                                })}
+                                                    {p.product_details.map((pd, index) => {
+                                                        return <p>Total harga ({pd.jumlah} barang) : {pd.harga * pd.jumlah}</p>
+                                                    })}
 
-                                                <p>Total ongkos kirim : {p.kurir.price}</p>
+                                                    <p>Total ongkos kirim : {p.kurir.price}</p>
 
-                                                <p>Total belanja : {p.midtrans_response.gross_amount}</p>
+                                                    <p>Total belanja : {p.midtrans_response.gross_amount}</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            }
+
                         </div>
                     })}
                 </>
