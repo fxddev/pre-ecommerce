@@ -83,39 +83,52 @@ function Home() {
             console.log("carts");
             console.log(carts);
 
-            for (let i = 0; i < carts.length; i++) {
-                if (carts[i].id_products == id_product) {
-                    console.log("carts[i].id_products update");
-                    console.log(carts[i].id_products);
+            if (carts.length == 0) {
+                console.log('sedang tambah cart pertama kalinya');
 
-                    const data = {
-                        "id_products": carts[i].id_products,
-                        "id_pembeli": carts[i].id_pembeli,
-                        "jumlah": carts[i].jumlah + 1,
-                        "is_selected": true
-                    };
+                const data = {
+                    "id_products": id_product,
+                    "id_pembeli": pb.authStore.model.id,
+                    "jumlah": 1,
+                    "is_selected": true
+                };
 
-                    const record = await pb.collection('keranjang').update(carts[i].id, data);
-                    console.log("record cart update");
-                    console.log(record);
-
-                    break;
-                } else {
-                    console.log(`posisi carts ke ${i + 1}/${carts.length}`);
-                    if ((i + 1) === carts.length) {
-                        console.log("carts[i].id_products create");
+                const record = await pb.collection('keranjang').create(data);
+            } else {
+                for (let i = 0; i < carts.length; i++) {
+                    if (carts[i].id_products == id_product) {
+                        console.log("carts[i].id_products update");
                         console.log(carts[i].id_products);
 
                         const data = {
-                            "id_products": id_product,
-                            "id_pembeli": id_user,
-                            "jumlah": 1,
+                            "id_products": carts[i].id_products,
+                            "id_pembeli": carts[i].id_pembeli,
+                            "jumlah": carts[i].jumlah + 1,
                             "is_selected": true
                         };
 
-                        const record = await pb.collection('keranjang').create(data);
-                        console.log("record cart create");
+                        const record = await pb.collection('keranjang').update(carts[i].id, data);
+                        console.log("record cart update");
                         console.log(record);
+
+                        break;
+                    } else {
+                        console.log(`posisi carts ke ${i + 1}/${carts.length}`);
+                        if ((i + 1) === carts.length) {
+                            console.log("carts[i].id_products create");
+                            console.log(carts[i].id_products);
+
+                            const data = {
+                                "id_products": id_product,
+                                "id_pembeli": id_user,
+                                "jumlah": 1,
+                                "is_selected": true
+                            };
+
+                            const record = await pb.collection('keranjang').create(data);
+                            console.log("record cart create");
+                            console.log(record);
+                        }
                     }
                 }
             }

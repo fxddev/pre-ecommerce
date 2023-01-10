@@ -118,8 +118,17 @@ function Checkouts() {
 
             console.log("record.harga");
             console.log(record.harga);
-            const harga = harga_total + record.harga
+            // const harga = harga_total + record.harga
+            // harga_total = harga
+
+            let harga
+            if (record.harga.diskon == 0) {
+                harga = record.harga.normal + harga_total
+            } else {
+                harga = record.harga.diskon + harga_total
+            }
             harga_total = harga
+
             // setHargaTotal(harga_total)
 
         }
@@ -280,10 +289,10 @@ function Checkouts() {
 
             const alamat_tujuan = [
                 {
-                  "nama": userInfo.nama,
-                  "alamat": userInfo.alamat[0]
+                    "nama": userInfo.nama,
+                    "alamat": userInfo.alamat[0]
                 }
-              ]
+            ]
 
             const data = {
                 "id_pembeli": userInfo.id,
@@ -300,7 +309,7 @@ function Checkouts() {
 
             const record = await pb.collection('pesanan').create(data);
             console.log("record buatPesanan");
-            console.log(record);   
+            console.log(record);
 
             for (let j = 0; j < cartById.length; j++) {
                 console.log(`sedang hapus keranjang id=${cartById[j].id}`);
@@ -310,7 +319,7 @@ function Checkouts() {
             setIsProsesBuatPesanan(false)
             navigate("/pesanan");
             localStorage.removeItem("midtrans_response");
-            
+
         });
     }
 
@@ -351,9 +360,17 @@ function Checkouts() {
         console.log(cartSelectedDetails);
         let item_details = []
         for (let i = 0; i < cartSelectedDetails.length; i++) {
+
+            let price 
+            if (cartSelectedDetails[i].product_details.harga.diskon == 0) {
+                price = cartSelectedDetails[i].product_details.harga.normal
+            } else {
+                price = cartSelectedDetails[i].product_details.harga.diskon
+            }
+
             const obj = {
                 "id": cartSelectedDetails[i].product_details.id,
-                "price": cartSelectedDetails[i].product_details.harga,
+                "price": price,
                 "quantity": cartSelectedDetails[i].jumlah,
                 "name": cartSelectedDetails[i].product_details.nama
             }
@@ -389,6 +406,7 @@ function Checkouts() {
         }
 
         var data = JSON.stringify(payload);
+        console.log('data payload midtrans bayar');
         console.log(data);
 
         var config = {
@@ -430,7 +448,16 @@ function Checkouts() {
                 {cartSelectedDetails.map((cs) => (
                     <div key={cs.id}>
                         <h3>{cs.product_details.nama}</h3>
-                        <h3>{cs.jumlah}x {cs.product_details.harga}</h3>
+
+                        {/* <h3>{cs.jumlah}x {cs.product_details.harga}</h3> */}
+
+                        <h3>{cs.jumlah}x
+                            {cs.product_details.harga.diskon == 0 ?
+                                cs.product_details.harga.normal
+                                :
+                                cs.product_details.harga.diskon
+                            }
+                        </h3>
                     </div>
                 ))}
             </div>

@@ -173,37 +173,44 @@ function Cart() {
 
     return (
         <>
-            <div>
-                {cartDetails.map((cart) => (
-                    <div key={cart.id}>
-                        {cart.is_selected ?
-                            <input type="checkbox" checked onChange={() => handleCheckbox(cart.id)} />
-                            :
-                            <input type="checkbox" onChange={() => handleCheckbox(cart.id)} />
-                        }
+            {cartDetails.length == 0 ?
+                <p>Keranjnag kosong, yuk beli..</p>
+                :
+                <>
+                    <div>
+                        {cartDetails.map((cart) => (
+                            <div key={cart.id}>
+                                {cart.is_selected ?
+                                    <input type="checkbox" checked onChange={() => handleCheckbox(cart.id)} />
+                                    :
+                                    <input type="checkbox" onChange={() => handleCheckbox(cart.id)} />
+                                }
 
-                        <h3>{cart.product_details.nama}</h3>
+                                <h3>{cart.product_details.nama}</h3>
 
-                        {/* <p>{cart.product_details.harga}</p> */}
-                        <p>
-                            {cart.product_details.harga.diskon == 0 ?
-                                cart.product_details.harga.normal
-                                :
-                                cart.product_details.harga.diskon
-                            }
-                        </p>
+                                {/* <p>{cart.product_details.harga}</p> */}
+                                <p>
+                                    {cart.product_details.harga.diskon == 0 ?
+                                        cart.product_details.harga.normal
+                                        :
+                                        cart.product_details.harga.diskon
+                                    }
+                                </p>
 
-                        {/* https://stackoverflow.com/questions/68256270/react-map-method-render-input-dynamically-change-value-separate-fields */}
-                        <input type="number" value={cart.jumlah} onChange={(e) => handleJumlah(e, cart.id)} />
+                                {/* https://stackoverflow.com/questions/68256270/react-map-method-render-input-dynamically-change-value-separate-fields */}
+                                <input type="number" value={cart.jumlah} onChange={(e) => handleJumlah(e, cart.id)} />
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
 
-            <div>
-                <h2>Total: {totalHarga}</h2>
-                <Link to='/checkouts'>Beli</Link>
-            </div>
+                    <div>
+                        <h2>Total: {totalHarga}</h2>
+                        <Link to='/checkouts'>Beli</Link>
+                    </div>
+                </>
+            }
         </>
+
     )
 }
 
