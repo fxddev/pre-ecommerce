@@ -89,8 +89,6 @@ function Pesanan() {
                         array.push(obj)
                     }
 
-
-
                 } catch (error) {
                     console.error(`Axios error..: ${error}`)
                 }
