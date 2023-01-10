@@ -146,7 +146,16 @@ function Home() {
                 {products.map((product) => (
                     <div key={product.id}>
                         <h3>{product.nama}</h3>
-                        <p>{product.harga}</p>
+
+                        {/* <p>{product.harga}</p> */}
+                        <p>
+                            {product.harga.diskon == 0 ?
+                                product.harga.normal
+                                :
+                                product.harga.diskon
+                            }
+                        </p>
+
                         <button onClick={() => buyHandle(product.id)}>Beli</button>
                     </div>
                 ))}
