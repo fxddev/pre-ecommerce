@@ -250,7 +250,13 @@ function Pesanan() {
                                                     {p.product_details.map((pd, index) => {
                                                         return <div key={index}>
                                                             <h3>{pd.nama}</h3>
-                                                            <p>{pd.jumlah} x {pd.harga}</p>
+                                                            <p>{pd.jumlah} x
+                                                                {pd.harga.diskon == 0 ?
+                                                                    pd.harga.normal
+                                                                    :
+                                                                    pd.harga.diskon
+                                                                }
+                                                            </p>
                                                         </div>
                                                     })}
                                                 </div>
@@ -268,7 +274,13 @@ function Pesanan() {
                                                     <h3>Rincian pembayaran</h3>
 
                                                     {p.product_details.map((pd, index) => {
-                                                        return <p>Total harga ({pd.jumlah} barang) : {pd.harga * pd.jumlah}</p>
+                                                        return <p>Total harga ({pd.jumlah} barang) :
+                                                            {pd.harga.diskon == 0 ?
+                                                                pd.harga.normal * pd.jumlah
+                                                                :
+                                                                pd.harga.diskon * pd.jumlah
+                                                            }
+                                                        </p>
                                                     })}
 
                                                     <p>Total ongkos kirim : {p.kurir.price}</p>
