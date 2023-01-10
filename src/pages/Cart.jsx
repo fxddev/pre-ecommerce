@@ -91,7 +91,12 @@ function Cart() {
             // setCartDetails(array)
 
             if (cart_by_id[i].is_selected) {
-                const harga = record.harga + total_harga
+                let harga
+                if (record.harga.diskon == 0) {
+                    harga = record.harga.normal + total_harga
+                } else {
+                    harga = record.harga.diskon + total_harga
+                }
                 total_harga = harga
             }
         }
@@ -127,7 +132,7 @@ function Cart() {
         const record_up = await pb.collection('keranjang').update(id_cart, data);
         console.log("record_up");
         console.log(record_up);
-        
+
         window.location.reload(false);
     }
 
@@ -137,6 +142,7 @@ function Cart() {
         console.log(idCart);
 
         let array = []
+        let data_payload = {}
         console.log(cartDetails);
         for (let i = 0; i < cartDetails.length; i++) {
             if (cartDetails[i].id == idCart) {
@@ -150,19 +156,19 @@ function Cart() {
                 }
                 array.push(obj)
 
-                const data = {
+                data_payload = {
                     "id_products": cartDetails[i].id_products,
                     "id_pembeli": cartDetails[i].id_pembeli,
                     "jumlah": jumlah_new,
                     "is_selected": cartDetails[i].is_selected
                 };
 
-                const record = await pb.collection('keranjang').update(idCart, data);
             } else {
                 array.push(cartDetails[i])
             }
         }
         setCartDetails(array)
+        const record = await pb.collection('keranjang').update(idCart, data_payload);
     }
 
     return (
@@ -177,7 +183,15 @@ function Cart() {
                         }
 
                         <h3>{cart.product_details.nama}</h3>
-                        <p>{cart.product_details.harga}</p>
+
+                        {/* <p>{cart.product_details.harga}</p> */}
+                        <p>
+                            {cart.product_details.harga.diskon == 0 ?
+                                cart.product_details.harga.normal
+                                :
+                                cart.product_details.harga.diskon
+                            }
+                        </p>
 
                         {/* https://stackoverflow.com/questions/68256270/react-map-method-render-input-dynamically-change-value-separate-fields */}
                         <input type="number" value={cart.jumlah} onChange={(e) => handleJumlah(e, cart.id)} />
